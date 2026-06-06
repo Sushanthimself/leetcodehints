@@ -189,7 +189,7 @@
     shadowRoot.appendChild(overlayEl);
 
     // Cache DOM refs
-    problemTitleEl = shadowRoot.querySelector(".lch-problem__title");
+    problemTitleEl = shadowRoot.querySelector(".lch-toolbar__problem-title");
     problemDescEl = shadowRoot.querySelector(".lch-problem__desc");
     difficultyBadgeEl = shadowRoot.querySelector(".lch-badge");
     problemSection = shadowRoot.querySelector(".lch-problem");
@@ -210,33 +210,18 @@
     const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
     const shortcutKey = isMac ? '⌘B' : 'Ctrl+B';
     return `
-      <!-- Header (draggable) -->
-      <div class="lch-header" id="lch-drag-handle">
-        <div class="lch-header__left">
-          <div class="lch-header__title">
-            LeetCode <span class="lch-header__title-accent">Hints</span>
+      <!-- Top toolbar -->
+      <div class="lch-toolbar" id="lch-drag-handle">
+        <div class="lch-toolbar__left">
+          <div class="lch-toolbar__logo">
+            LeetCode <span class="lch-toolbar__logo-accent">Hints</span>
           </div>
-        </div>
-        <button class="lch-close-btn" id="lch-close" title="Close">✕</button>
-      </div>
-
-      <!-- Scrollable body -->
-      <div class="lch-body">
-        <!-- Problem info (collapsible) -->
-        <div class="lch-problem" id="lch-problem-toggle">
-          <div class="lch-problem__header">
-            <div class="lch-problem__title">Detecting problem…</div>
-            <span class="lch-badge">—</span>
-            <svg class="lch-problem__chevron" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
-          </div>
-          <div class="lch-problem__desc"></div>
+          <div class="lch-toolbar__sep"></div>
+          <div class="lch-toolbar__problem-title">Detecting…</div>
+          <span class="lch-badge">—</span>
         </div>
 
-        <!-- Language selector -->
-        <div class="lch-lang-row">
-          <span class="lch-lang-label">Lang</span>
+        <div class="lch-toolbar__center">
           <select class="lch-select" id="lch-lang-select">
             <option value="Python" selected>Python</option>
             <option value="JavaScript">JavaScript</option>
@@ -244,38 +229,37 @@
             <option value="Java">Java</option>
             <option value="Go">Go</option>
           </select>
+          <div class="lch-toolbar__sep"></div>
+          <button class="lch-tbtn" id="lch-next-hint" disabled>Next Hint</button>
+          <button class="lch-tbtn" id="lch-show-code" disabled>Show Code</button>
+          <button class="lch-tbtn lch-tbtn--ghost" id="lch-start-over" disabled>Start Over</button>
+          <div class="lch-toolbar__sep"></div>
+          <span class="lch-hint-counter">0 hints</span>
         </div>
 
-        <!-- Status -->
-        <div class="lch-status"></div>
-
-        <!-- Hint counter -->
-        <div class="lch-hint-counter">0 hints revealed</div>
-
-        <!-- Action buttons -->
-        <div class="lch-actions">
-          <button class="lch-btn lch-btn--primary" id="lch-next-hint" disabled>
-            Next Hint
-          </button>
-          <button class="lch-btn lch-btn--outline" id="lch-show-code" disabled>
-            Show Code
-          </button>
+        <div class="lch-toolbar__right">
+          <span class="lch-toolbar__shortcut">${shortcutKey}</span>
+          <button class="lch-toolbar__close" id="lch-close" title="Close">✕</button>
         </div>
-
-        <!-- Secondary actions -->
-        <div class="lch-secondary-actions">
-          <button class="lch-btn lch-btn--ghost" id="lch-start-over" disabled>
-            ↺ Start Over
-          </button>
-        </div>
-
-        <!-- Hints list (history) -->
-        <div class="lch-hints"></div>
       </div>
 
-      <!-- Footer -->
-      <div class="lch-footer">
-        <span class="lch-footer__text">${shortcutKey} to toggle</span>
+      <!-- Content panel -->
+      <div class="lch-content">
+        <div class="lch-status"></div>
+
+        <!-- Problem statement (collapsible) -->
+        <div class="lch-problem" id="lch-problem-toggle">
+          <div class="lch-problem__header">
+            <span class="lch-problem__label">Problem Statement</span>
+            <svg class="lch-problem__chevron" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="lch-problem__desc"></div>
+        </div>
+
+        <!-- Hints flow -->
+        <div class="lch-hints"></div>
       </div>
     `;
   }
@@ -312,7 +296,7 @@
 
     handle.addEventListener("mousedown", (e) => {
       // Don't drag if clicking the close button
-      if (e.target.closest(".lch-close-btn")) return;
+      if (e.target.closest(".lch-toolbar__close")) return;
 
       isDragging = true;
       const rect = overlayEl.getBoundingClientRect();
@@ -374,7 +358,7 @@
       const nextNum = currentHintLevel + 1;
 
       isFetchingHint = true;
-      nextHintBtn.classList.add("lch-btn--loading");
+      nextHintBtn.classList.add("lch-tbtn--loading");
       showCodeBtn.disabled = true;
       startOverBtn.disabled = true;
 
@@ -391,7 +375,7 @@
         startOverBtn.disabled = false;
       } finally {
         isFetchingHint = false;
-        nextHintBtn.classList.remove("lch-btn--loading");
+        nextHintBtn.classList.remove("lch-tbtn--loading");
       }
     });
 
@@ -400,7 +384,7 @@
       if (isFetchingHint || !problemData) return;
 
       isFetchingHint = true;
-      showCodeBtn.classList.add("lch-btn--loading");
+      showCodeBtn.classList.add("lch-tbtn--loading");
       nextHintBtn.disabled = true;
       startOverBtn.disabled = true;
 
@@ -418,7 +402,7 @@
         startOverBtn.disabled = false;
       } finally {
         isFetchingHint = false;
-        showCodeBtn.classList.remove("lch-btn--loading");
+        showCodeBtn.classList.remove("lch-tbtn--loading");
       }
     });
 
@@ -581,11 +565,11 @@
     if (hintCounterEl) hintCounterEl.textContent = "0 hints revealed";
     if (nextHintBtn) {
       nextHintBtn.disabled = true;
-      nextHintBtn.classList.remove("lch-btn--loading");
+      nextHintBtn.classList.remove("lch-tbtn--loading");
     }
     if (showCodeBtn) {
       showCodeBtn.disabled = true;
-      showCodeBtn.classList.remove("lch-btn--loading");
+      showCodeBtn.classList.remove("lch-tbtn--loading");
     }
     if (startOverBtn) {
       startOverBtn.disabled = true;

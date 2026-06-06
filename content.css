@@ -1,5 +1,5 @@
 /* ================================================================
-   LeetCode Hints — Dark Minimal Theme (Interview Coder Style)
+   LeetCode Hints — Horizontal Toolbar Layout (Interview Coder Style)
    Injected into Shadow DOM
    ================================================================ */
 
@@ -7,7 +7,7 @@
 :host {
   all: initial;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 14px;
+  font-size: 13px;
   color: #e4e4e7;
   -webkit-font-smoothing: antialiased;
 }
@@ -20,80 +20,119 @@
   box-sizing: border-box;
 }
 
-/* ---------- Overlay Panel ---------- */
+/* ---------- Overlay Container ---------- */
 .lch-overlay {
   position: fixed;
-  top: 80px;
-  right: 32px;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 2147483647;
-  width: 380px;
-  max-height: calc(100vh - 120px);
   display: flex;
   flex-direction: column;
-  background: rgba(18, 18, 18, 0.88);
-  backdrop-filter: blur(24px) saturate(1.5);
-  -webkit-backdrop-filter: blur(24px) saturate(1.5);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  box-shadow:
-    0 24px 48px rgba(0, 0, 0, 0.4),
-    0 2px 8px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  animation: lch-slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  animation: lch-slideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .lch-overlay--hidden {
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-8px) scale(0.98);
+  transform: translateY(-100%);
 }
 
-@keyframes lch-slideIn {
+@keyframes lch-slideDown {
   from {
     opacity: 0;
-    transform: translateY(-12px) scale(0.97);
+    transform: translateY(-100%);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-/* ---------- Drag Header ---------- */
-.lch-header {
+/* ---------- Toolbar ---------- */
+.lch-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px 10px;
+  padding: 0 16px;
+  height: 38px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   cursor: grab;
   user-select: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
 }
 
-.lch-header:active {
+.lch-toolbar:active {
   cursor: grabbing;
 }
 
-.lch-header__left {
+.lch-toolbar__left,
+.lch-toolbar__center,
+.lch-toolbar__right {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.lch-header__title {
-  font-size: 0.85rem;
+.lch-toolbar__left {
+  flex-shrink: 0;
+}
+
+.lch-toolbar__center {
+  flex: 1;
+  justify-content: center;
+}
+
+.lch-toolbar__right {
+  flex-shrink: 0;
+}
+
+.lch-toolbar__logo {
+  font-size: 0.82rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
   color: #e4e4e7;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
-.lch-header__title-accent {
+.lch-toolbar__logo-accent {
   font-weight: 400;
-  color: #71717a;
+  color: #52525b;
 }
 
-.lch-close-btn {
+.lch-toolbar__sep {
+  width: 1px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.lch-toolbar__problem-title {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #a1a1aa;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lch-toolbar__shortcut {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #3f3f46;
+  padding: 2px 5px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  font-family: inherit;
+}
+
+.lch-toolbar__close {
   width: 22px;
   height: 22px;
   display: flex;
@@ -103,123 +142,110 @@
   background: transparent;
   border-radius: 4px;
   cursor: pointer;
-  color: #52525b;
-  font-size: 11px;
+  color: #3f3f46;
+  font-size: 10px;
   font-weight: 600;
   transition: all 0.15s ease;
   line-height: 1;
 }
 
-.lch-close-btn:hover {
+.lch-toolbar__close:hover {
   background: rgba(255, 255, 255, 0.08);
   color: #e4e4e7;
 }
 
-/* ---------- Body (scrollable) ---------- */
-.lch-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 12px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* ---------- Toolbar Buttons ---------- */
+.lch-tbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  outline: none;
+  white-space: nowrap;
 }
 
-.lch-body::-webkit-scrollbar {
-  width: 4px;
+.lch-tbtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.lch-body::-webkit-scrollbar-track {
+.lch-tbtn:disabled {
+  color: #3f3f46;
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: not-allowed;
+}
+
+.lch-tbtn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: #52525b;
+}
+
+.lch-tbtn--ghost:hover {
+  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lch-tbtn--ghost:disabled {
+  color: #27272a;
   background: transparent;
 }
 
-.lch-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+/* Loading state */
+.lch-tbtn--loading {
+  pointer-events: none;
+  position: relative;
+  color: transparent !important;
 }
 
-/* ---------- Problem Info (Collapsible) ---------- */
-.lch-problem {
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.15s ease;
+.lch-tbtn--loading::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #a1a1aa;
+  border-radius: 50%;
+  animation: lch-spin 0.55s linear infinite;
 }
 
-.lch-problem:hover {
-  background: rgba(255, 255, 255, 0.05);
+@keyframes lch-spin {
+  to { transform: rotate(360deg); }
 }
 
-.lch-problem__header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.lch-problem__title {
-  font-size: 0.85rem;
+/* ---------- Hint Counter ---------- */
+.lch-hint-counter {
+  font-size: 0.65rem;
   font-weight: 600;
-  line-height: 1.35;
-  color: #e4e4e7;
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.lch-problem__chevron {
-  width: 16px;
-  height: 16px;
   color: #52525b;
-  transition: transform 0.2s ease;
-  flex-shrink: 0;
-}
-
-.lch-problem--expanded .lch-problem__chevron {
-  transform: rotate(180deg);
-}
-
-.lch-problem__desc {
-  font-size: 0.78rem;
-  line-height: 1.55;
-  color: #a1a1aa;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.25s ease, margin-top 0.25s ease, opacity 0.25s ease;
-  opacity: 0;
-  margin-top: 0;
-}
-
-.lch-problem--expanded .lch-problem__desc {
-  max-height: 200px;
-  overflow-y: auto;
-  margin-top: 8px;
-  opacity: 1;
-}
-
-.lch-problem__desc::-webkit-scrollbar {
-  width: 3px;
-}
-.lch-problem__desc::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
 /* ---------- Difficulty Badge ---------- */
 .lch-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 7px;
-  font-size: 0.6rem;
+  padding: 1px 6px;
+  font-size: 0.58rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   border-radius: 3px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.06);
-  color: #71717a;
+  color: #52525b;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -242,48 +268,27 @@
 }
 
 /* ---------- Language Selector ---------- */
-.lch-lang-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.lch-lang-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #52525b;
-  flex-shrink: 0;
-}
-
 .lch-select {
-  flex: 1;
-  padding: 6px 10px;
+  padding: 3px 24px 3px 8px;
   font-family: inherit;
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 500;
-  color: #e4e4e7;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 6px;
+  color: #d4d4d8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.12s ease;
   -webkit-appearance: none;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 28px;
+  background-position: right 6px center;
 }
 
 .lch-select:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.lch-select:focus {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .lch-select option {
@@ -291,169 +296,130 @@
   color: #e4e4e7;
 }
 
+/* ---------- Content Panel ---------- */
+.lch-content {
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 12px 24px 16px;
+  background: rgba(14, 14, 14, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lch-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lch-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lch-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+}
+
 /* ---------- Status ---------- */
 .lch-status {
-  text-align: center;
   font-size: 0.78rem;
   color: #71717a;
+}
+
+.lch-status:empty {
+  display: none;
 }
 
 .lch-status--error {
   color: #f87171;
   font-weight: 500;
+  padding-bottom: 8px;
 }
 
-/* ---------- Actions ---------- */
-.lch-actions {
-  display: flex;
-  gap: 6px;
-}
-
-/* ---------- Buttons ---------- */
-.lch-btn {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 14px;
-  font-family: inherit;
-  font-size: 0.78rem;
-  font-weight: 500;
-  border: none;
-  border-radius: 6px;
+/* ---------- Problem Statement (Collapsible) ---------- */
+.lch-problem {
+  padding: 8px 0;
   cursor: pointer;
-  transition: all 0.15s ease;
-  outline: none;
-  white-space: nowrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  margin-bottom: 10px;
 }
 
-.lch-btn svg {
-  width: 13px;
-  height: 13px;
+.lch-problem__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lch-problem__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #52525b;
+}
+
+.lch-problem__chevron {
+  width: 14px;
+  height: 14px;
+  color: #3f3f46;
+  transition: transform 0.2s ease;
   flex-shrink: 0;
 }
 
-.lch-btn--primary {
-  background: rgba(255, 255, 255, 0.1);
-  color: #e4e4e7;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.lch-problem--expanded .lch-problem__chevron {
+  transform: rotate(180deg);
 }
 
-.lch-btn--primary:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.18);
-}
-
-.lch-btn--primary:active {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.lch-btn--primary:disabled {
-  background: rgba(255, 255, 255, 0.03);
-  color: #3f3f46;
-  border-color: rgba(255, 255, 255, 0.04);
-  cursor: not-allowed;
-}
-
-.lch-btn--outline {
-  background: transparent;
+.lch-problem__desc {
+  font-size: 0.78rem;
+  line-height: 1.6;
   color: #a1a1aa;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, margin-top 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  margin-top: 0;
 }
 
-.lch-btn--outline:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: #e4e4e7;
-  border-color: rgba(255, 255, 255, 0.12);
+.lch-problem--expanded .lch-problem__desc {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-top: 8px;
+  opacity: 1;
 }
 
-.lch-btn--outline:disabled {
-  color: #3f3f46;
-  border-color: rgba(255, 255, 255, 0.04);
-  cursor: not-allowed;
+.lch-problem__desc::-webkit-scrollbar {
+  width: 3px;
 }
 
-.lch-btn--ghost {
-  flex: none;
-  background: transparent;
-  color: #52525b;
-  border: none;
-  padding: 6px 10px;
-  font-size: 0.72rem;
-  font-weight: 500;
+.lch-problem__desc::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
 }
 
-.lch-btn--ghost:hover {
-  color: #a1a1aa;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.lch-btn--ghost:disabled {
-  color: #27272a;
-  cursor: not-allowed;
-}
-
-/* Loading spinner */
-.lch-btn--loading {
-  pointer-events: none;
-  position: relative;
-  color: transparent !important;
-}
-
-.lch-btn--loading::after {
-  content: "";
-  position: absolute;
-  width: 14px;
-  height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #a1a1aa;
-  border-radius: 50%;
-  animation: lch-spin 0.55s linear infinite;
-}
-
-@keyframes lch-spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ---------- Hint Counter ---------- */
-.lch-hint-counter {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: #52525b;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-/* ---------- Hints List ---------- */
+/* ---------- Hints Flow ---------- */
 .lch-hints {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
 }
 
-/* ---------- Individual Hint Card ---------- */
+/* ---------- Hint Section ---------- */
 .lch-hint {
-  padding: 10px 12px;
-  border-radius: 6px;
-  animation: lch-hintSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  animation: lch-hintFade 0.3s ease;
   position: relative;
 }
 
-.lch-hint--text {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+.lch-hint:last-child {
+  border-bottom: none;
 }
 
-.lch-hint--code {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-@keyframes lch-hintSlide {
+@keyframes lch-hintFade {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -464,30 +430,15 @@
 .lch-hint__header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 4px;
+  gap: 8px;
+  margin-bottom: 6px;
 }
 
 .lch-hint__step {
-  width: 18px;
-  height: 18px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  border-radius: 3px;
+  color: #52525b;
   flex-shrink: 0;
-}
-
-.lch-hint--text .lch-hint__step {
-  background: rgba(255, 255, 255, 0.1);
-  color: #a1a1aa;
-}
-
-.lch-hint--code .lch-hint__step {
-  background: rgba(255, 255, 255, 0.12);
-  color: #e4e4e7;
 }
 
 .lch-hint__label {
@@ -495,43 +446,35 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-}
-
-.lch-hint--text .lch-hint__label {
-  color: #71717a;
-}
-
-.lch-hint--code .lch-hint__label {
   color: #71717a;
 }
 
 .lch-hint__content {
-  font-size: 0.8rem;
-  line-height: 1.55;
-}
-
-.lch-hint--text .lch-hint__content {
+  font-size: 0.82rem;
+  line-height: 1.65;
   color: #d4d4d8;
-}
-
-.lch-hint--code .lch-hint__content {
-  color: #d4d4d8;
+  max-width: 800px;
 }
 
 /* Code block inside hint */
+.lch-hint--code {
+  padding: 10px 0;
+}
+
 .lch-hint__code {
   margin-top: 4px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 14px 16px;
+  background: #0a0a0a;
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  border-radius: 6px;
   overflow-x: auto;
   font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
-  font-size: 0.75rem;
-  line-height: 1.5;
+  font-size: 0.78rem;
+  line-height: 1.55;
   color: #a7f3d0;
   white-space: pre;
   tab-size: 4;
+  max-width: 800px;
 }
 
 .lch-hint__code::-webkit-scrollbar {
@@ -546,59 +489,23 @@
 /* Copy button for code */
 .lch-copy-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 0;
   padding: 3px 8px;
   font-family: inherit;
   font-size: 0.62rem;
   font-weight: 500;
-  color: #71717a;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #52525b;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 3px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .lch-copy-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   color: #a1a1aa;
-}
-
-/* ---------- Footer ---------- */
-.lch-footer {
-  padding: 8px 16px 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lch-footer__text {
-  font-size: 0.62rem;
-  color: #3f3f46;
-  letter-spacing: 0.02em;
-}
-
-/* ---------- Empty State ---------- */
-.lch-empty {
-  text-align: center;
-  padding: 20px 10px;
-  color: #52525b;
-  font-size: 0.8rem;
-  line-height: 1.5;
-}
-
-.lch-empty__icon {
-  font-size: 2rem;
-  margin-bottom: 8px;
-  opacity: 0.3;
-}
-
-/* ---------- Secondary Actions Row ---------- */
-.lch-secondary-actions {
-  display: flex;
-  justify-content: center;
 }
 
 /* ---------- Go Deeper Button ---------- */
@@ -607,21 +514,19 @@
   align-items: center;
   gap: 4px;
   margin-top: 6px;
-  padding: 3px 8px;
+  padding: 2px 6px;
   font-family: inherit;
   font-size: 0.65rem;
   font-weight: 500;
-  color: #52525b;
+  color: #3f3f46;
   background: transparent;
   border: none;
-  border-radius: 3px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all 0.12s ease;
 }
 
 .lch-deeper-btn:hover {
-  color: #a1a1aa;
-  background: rgba(255, 255, 255, 0.04);
+  color: #71717a;
 }
 
 .lch-deeper-btn--loading {
@@ -629,20 +534,23 @@
   opacity: 0.5;
 }
 
-/* ---------- Sub-Hint (Deeper) Card ---------- */
+/* ---------- Sub-Hint (Deeper) ---------- */
 .lch-hint--sub {
-  margin-left: 16px;
-  margin-top: 6px;
-  padding: 8px 10px;
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.02);
-  border: none;
-  border-left: 2px solid rgba(255, 255, 255, 0.1);
-  animation: lch-hintSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: 20px;
+  padding: 6px 0 6px 12px;
+  border-bottom: none;
+  border-left: 2px solid rgba(255, 255, 255, 0.06);
 }
 
 .lch-hint--sub .lch-hint__content {
-  font-size: 0.76rem;
+  font-size: 0.78rem;
   color: #a1a1aa;
-  line-height: 1.5;
+}
+
+/* ---------- Empty State ---------- */
+.lch-empty {
+  text-align: center;
+  padding: 20px 10px;
+  color: #3f3f46;
+  font-size: 0.78rem;
 }
