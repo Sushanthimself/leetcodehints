@@ -696,7 +696,7 @@
 
       currentHintLevel = 0;
       revealedHints = [];
-      updateProgress();
+      updateHintCounter();
 
       nextHintBtn.disabled = false;
       showCodeBtn.disabled = false;
