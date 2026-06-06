@@ -1,0 +1,24 @@
+{
+  "name": "leetcodehints",
+  "version": "1.0.0",
+  "description": "A Chrome extension that gives you **step-wise, progressive hints** for LeetCode problems — without spoiling the solution.",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sushanthimself/leetcodehints.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Sushanthimself/leetcodehints/issues"
+  },
+  "homepage": "https://github.com/Sushanthimself/leetcodehints#readme",
+  "dependencies": {
+    "@upstash/redis": "^1.38.0"
+  }
+}

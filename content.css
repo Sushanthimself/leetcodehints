@@ -1,0 +1,622 @@
+/* ================================================================
+   LeetCode Hints — Dark Minimal Theme (Interview Coder Style)
+   Injected into Shadow DOM
+   ================================================================ */
+
+/* ---------- Host & Reset ---------- */
+:host {
+  all: initial;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px;
+  color: #e4e4e7;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ---------- Overlay Panel ---------- */
+.lch-overlay {
+  position: fixed;
+  top: 80px;
+  right: 32px;
+  z-index: 2147483647;
+  width: 380px;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  background: rgba(18, 18, 18, 0.88);
+  backdrop-filter: blur(24px) saturate(1.5);
+  -webkit-backdrop-filter: blur(24px) saturate(1.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  animation: lch-slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lch-overlay--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-8px) scale(0.98);
+}
+
+@keyframes lch-slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---------- Drag Header ---------- */
+.lch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 10px;
+  cursor: grab;
+  user-select: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lch-header:active {
+  cursor: grabbing;
+}
+
+.lch-header__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lch-header__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #e4e4e7;
+}
+
+.lch-header__title-accent {
+  font-weight: 400;
+  color: #71717a;
+}
+
+.lch-close-btn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #52525b;
+  font-size: 11px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.lch-close-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e4e4e7;
+}
+
+/* ---------- Body (scrollable) ---------- */
+.lch-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.lch-body::-webkit-scrollbar {
+  width: 4px;
+}
+
+.lch-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.lch-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+/* ---------- Problem Info (Collapsible) ---------- */
+.lch-problem {
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lch-problem:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.lch-problem__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lch-problem__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #e4e4e7;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lch-problem__chevron {
+  width: 16px;
+  height: 16px;
+  color: #52525b;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.lch-problem--expanded .lch-problem__chevron {
+  transform: rotate(180deg);
+}
+
+.lch-problem__desc {
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: #a1a1aa;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease, margin-top 0.25s ease, opacity 0.25s ease;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.lch-problem--expanded .lch-problem__desc {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+  opacity: 1;
+}
+
+.lch-problem__desc::-webkit-scrollbar {
+  width: 3px;
+}
+.lch-problem__desc::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+/* ---------- Difficulty Badge ---------- */
+.lch-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  color: #71717a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lch-badge--easy {
+  color: #4ade80;
+  border-color: rgba(74, 222, 128, 0.2);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.lch-badge--medium {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.2);
+  background: rgba(251, 191, 36, 0.08);
+}
+
+.lch-badge--hard {
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.2);
+  background: rgba(248, 113, 113, 0.08);
+}
+
+/* ---------- Language Selector ---------- */
+.lch-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lch-lang-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #52525b;
+  flex-shrink: 0;
+}
+
+.lch-select {
+  flex: 1;
+  padding: 6px 10px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #e4e4e7;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+  -webkit-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 28px;
+}
+
+.lch-select:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.lch-select:focus {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.lch-select option {
+  background: #1a1a1a;
+  color: #e4e4e7;
+}
+
+/* ---------- Status ---------- */
+.lch-status {
+  text-align: center;
+  font-size: 0.78rem;
+  color: #71717a;
+}
+
+.lch-status--error {
+  color: #f87171;
+  font-weight: 500;
+}
+
+/* ---------- Actions ---------- */
+.lch-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------- Buttons ---------- */
+.lch-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  outline: none;
+  white-space: nowrap;
+}
+
+.lch-btn svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.lch-btn--primary {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e4e4e7;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.lch-btn--primary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.lch-btn--primary:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.lch-btn--primary:disabled {
+  background: rgba(255, 255, 255, 0.03);
+  color: #3f3f46;
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: not-allowed;
+}
+
+.lch-btn--outline {
+  background: transparent;
+  color: #a1a1aa;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lch-btn--outline:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e4e4e7;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.lch-btn--outline:disabled {
+  color: #3f3f46;
+  border-color: rgba(255, 255, 255, 0.04);
+  cursor: not-allowed;
+}
+
+.lch-btn--ghost {
+  flex: none;
+  background: transparent;
+  color: #52525b;
+  border: none;
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.lch-btn--ghost:hover {
+  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lch-btn--ghost:disabled {
+  color: #27272a;
+  cursor: not-allowed;
+}
+
+/* Loading spinner */
+.lch-btn--loading {
+  pointer-events: none;
+  position: relative;
+  color: transparent !important;
+}
+
+.lch-btn--loading::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #a1a1aa;
+  border-radius: 50%;
+  animation: lch-spin 0.55s linear infinite;
+}
+
+@keyframes lch-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---------- Hint Progress ---------- */
+.lch-progress {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.lch-progress__text {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #52525b;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.lch-progress__bar {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.lch-progress__fill {
+  height: 100%;
+  background: #a1a1aa;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ---------- Hints List ---------- */
+.lch-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- Individual Hint Card ---------- */
+.lch-hint {
+  padding: 10px 12px;
+  border-radius: 6px;
+  animation: lch-hintSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.lch-hint--text {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.lch-hint--code {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@keyframes lch-hintSlide {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lch-hint__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.lch-hint__step {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.lch-hint--text .lch-hint__step {
+  background: rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+}
+
+.lch-hint--code .lch-hint__step {
+  background: rgba(255, 255, 255, 0.12);
+  color: #e4e4e7;
+}
+
+.lch-hint__label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.lch-hint--text .lch-hint__label {
+  color: #71717a;
+}
+
+.lch-hint--code .lch-hint__label {
+  color: #71717a;
+}
+
+.lch-hint__content {
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
+
+.lch-hint--text .lch-hint__content {
+  color: #d4d4d8;
+}
+
+.lch-hint--code .lch-hint__content {
+  color: #d4d4d8;
+}
+
+/* Code block inside hint */
+.lch-hint__code {
+  margin-top: 4px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", "Fira Code", "SF Mono", "Consolas", monospace;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #a7f3d0;
+  white-space: pre;
+  tab-size: 4;
+}
+
+.lch-hint__code::-webkit-scrollbar {
+  height: 3px;
+}
+
+.lch-hint__code::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+}
+
+/* Copy button for code */
+.lch-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 3px 8px;
+  font-family: inherit;
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: #71717a;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lch-copy-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #a1a1aa;
+}
+
+/* ---------- Footer ---------- */
+.lch-footer {
+  padding: 8px 16px 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lch-footer__text {
+  font-size: 0.62rem;
+  color: #3f3f46;
+  letter-spacing: 0.02em;
+}
+
+/* ---------- Empty State ---------- */
+.lch-empty {
+  text-align: center;
+  padding: 20px 10px;
+  color: #52525b;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.lch-empty__icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+  opacity: 0.3;
+}
+
+/* ---------- Secondary Actions Row ---------- */
+.lch-secondary-actions {
+  display: flex;
+  justify-content: center;
+}
