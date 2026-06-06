@@ -25,8 +25,13 @@
   // ⚠️ UPDATE THIS after deploying your Vercel backend
   const API_URL = "https://leetcodehints.vercel.app/api/hint";
 
-  const TOTAL_HINT_LEVELS = 4;
-  const LEVEL_LABELS = { 1: "Nudge", 2: "Approach", 3: "Strategy", 4: "Code" };
+  // Dynamic label based on hint number
+  function getHintLabel(n) {
+    if (n <= 2) return "Nudge";
+    if (n <= 4) return "Approach";
+    if (n <= 6) return "Strategy";
+    return "Deep Dive";
+  }
 
   // ═══════════════════════════════════════════════════════════════
   // HINT ENGINE (API-backed)
@@ -42,13 +47,15 @@
    * @param {number} level - Hint level (1-4)
    * @returns {Promise<{level, type, label, content}>}
    */
-  async function fetchHintFromAPI(level) {
+  async function fetchHintFromAPI(hintNumber, { isCodeRequest = false, deeperContext = null } = {}) {
     const body = {
       problemTitle: problemData.title,
       difficulty: problemData.difficulty,
       problemDescription: problemData.description,
-      hintLevel: level,
+      hintNumber,
       language: selectedLanguage,
+      isCodeRequest,
+      deeperContext,
       previousHints: revealedHints.map((h) => ({
         label: h.label,
         content: h.content,
@@ -67,12 +74,11 @@
     }
 
     const data = await res.json();
-    const label = LEVEL_LABELS[level] || "Hint";
-    const isCode = level === 4;
+    const label = isCodeRequest ? "Solution" : getHintLabel(hintNumber);
 
     return {
-      level,
-      type: isCode ? "code" : "text",
+      level: hintNumber,
+      type: isCodeRequest ? "code" : "text",
       label,
       content: data.hint,
     };
@@ -159,7 +165,7 @@
 
   // DOM references inside shadow
   let problemTitleEl, problemDescEl, difficultyBadgeEl, problemSection;
-  let statusEl, hintsListEl, progressTextEl, progressFillEl;
+  let statusEl, hintsListEl, hintCounterEl;
   let nextHintBtn, showCodeBtn, startOverBtn, langSelect;
 
   function createOverlay() {
@@ -189,8 +195,7 @@
     problemSection = shadowRoot.querySelector(".lch-problem");
     statusEl = shadowRoot.querySelector(".lch-status");
     hintsListEl = shadowRoot.querySelector(".lch-hints");
-    progressTextEl = shadowRoot.querySelector(".lch-progress__text");
-    progressFillEl = shadowRoot.querySelector(".lch-progress__fill");
+    hintCounterEl = shadowRoot.querySelector(".lch-hint-counter");
     nextHintBtn = shadowRoot.querySelector("#lch-next-hint");
     showCodeBtn = shadowRoot.querySelector("#lch-show-code");
     startOverBtn = shadowRoot.querySelector("#lch-start-over");
@@ -244,13 +249,8 @@
         <!-- Status -->
         <div class="lch-status"></div>
 
-        <!-- Progress bar -->
-        <div class="lch-progress">
-          <span class="lch-progress__text">0 / 4 hints</span>
-          <div class="lch-progress__bar">
-            <div class="lch-progress__fill" style="width: 0%"></div>
-          </div>
-        </div>
+        <!-- Hint counter -->
+        <div class="lch-hint-counter">0 hints revealed</div>
 
         <!-- Action buttons -->
         <div class="lch-actions">
@@ -368,11 +368,10 @@
       selectedLanguage = e.target.value;
     });
 
-    // Next Hint
+    // Next Hint (unlimited)
     nextHintBtn.addEventListener("click", async () => {
       if (isFetchingHint || !problemData) return;
-      const nextLevel = currentHintLevel + 1;
-      if (nextLevel > TOTAL_HINT_LEVELS) return;
+      const nextNum = currentHintLevel + 1;
 
       isFetchingHint = true;
       nextHintBtn.classList.add("lch-btn--loading");
@@ -380,19 +379,12 @@
       startOverBtn.disabled = true;
 
       try {
-        const hint = await fetchHintFromAPI(nextLevel);
-        currentHintLevel = nextLevel;
+        const hint = await fetchHintFromAPI(nextNum);
+        currentHintLevel = nextNum;
         revealedHints.push(hint);
         appendHintCard(hint);
-        updateProgress();
-
-        if (currentHintLevel >= TOTAL_HINT_LEVELS) {
-          nextHintBtn.disabled = true;
-          nextHintBtn.textContent = "All hints revealed";
-          showCodeBtn.disabled = true;
-        } else {
-          showCodeBtn.disabled = false;
-        }
+        updateHintCounter();
+        showCodeBtn.disabled = false;
         startOverBtn.disabled = false;
       } catch (err) {
         setStatus("Failed to fetch hint: " + err.message, true);
@@ -403,7 +395,7 @@
       }
     });
 
-    // Show Code — jumps straight to level 4
+    // Show Code — requests a full solution
     showCodeBtn.addEventListener("click", async () => {
       if (isFetchingHint || !problemData) return;
 
@@ -413,18 +405,15 @@
       startOverBtn.disabled = true;
 
       try {
-        const hint = await fetchHintFromAPI(4);
-        currentHintLevel = TOTAL_HINT_LEVELS;
+        const hint = await fetchHintFromAPI(currentHintLevel + 1, { isCodeRequest: true });
         revealedHints.push(hint);
         appendHintCard(hint);
-        updateProgress();
-
-        nextHintBtn.disabled = true;
-        nextHintBtn.textContent = "All hints revealed";
-        showCodeBtn.disabled = true;
+        updateHintCounter();
+        nextHintBtn.disabled = false;
+        showCodeBtn.disabled = false;
         startOverBtn.disabled = false;
       } catch (err) {
-        setStatus("Failed to fetch code hint: " + err.message, true);
+        setStatus("Failed to fetch code: " + err.message, true);
         nextHintBtn.disabled = false;
         startOverBtn.disabled = false;
       } finally {
@@ -439,10 +428,9 @@
       currentHintLevel = 0;
       revealedHints = [];
       hintsListEl.innerHTML = "";
-      updateProgress();
+      updateHintCounter();
       setStatus("");
       nextHintBtn.disabled = false;
-      nextHintBtn.textContent = "Next Hint";
       showCodeBtn.disabled = false;
       startOverBtn.disabled = true;
     });
@@ -471,11 +459,9 @@
     statusEl.className = "lch-status" + (isError ? " lch-status--error" : "");
   }
 
-  function updateProgress() {
-    const total = TOTAL_HINT_LEVELS;
-    const current = revealedHints.length;
-    progressTextEl.textContent = `${current} / ${total} hints`;
-    progressFillEl.style.width = `${(current / total) * 100}%`;
+  function updateHintCounter() {
+    const count = revealedHints.length;
+    hintCounterEl.textContent = count === 0 ? "0 hints revealed" : `${count} hint${count > 1 ? "s" : ""} revealed`;
   }
 
   function createHintCardElement(hint, index) {
@@ -509,7 +495,30 @@
       card.innerHTML = `
         ${headerHTML}
         <div class="lch-hint__content">${escapeHTML(hint.content)}</div>
+        <button class="lch-deeper-btn">Go deeper ↓</button>
       `;
+      // Go Deeper handler
+      const deeperBtn = card.querySelector(".lch-deeper-btn");
+      deeperBtn.addEventListener("click", async (e) => {
+        e.stopPropagation();
+        if (deeperBtn.classList.contains("lch-deeper-btn--loading")) return;
+        deeperBtn.classList.add("lch-deeper-btn--loading");
+        deeperBtn.textContent = "Loading…";
+
+        try {
+          const deeper = await fetchHintFromAPI(hint.level, { deeperContext: hint.content });
+          // Create sub-hint card
+          const subCard = document.createElement("div");
+          subCard.className = "lch-hint lch-hint--sub";
+          subCard.innerHTML = `<div class="lch-hint__content">${escapeHTML(deeper.content)}</div>`;
+          card.parentNode.insertBefore(subCard, card.nextSibling);
+          subCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          deeperBtn.remove();
+        } catch (err) {
+          deeperBtn.textContent = "Failed — retry ↓";
+          deeperBtn.classList.remove("lch-deeper-btn--loading");
+        }
+      });
     }
 
     return card;
@@ -569,12 +578,10 @@
     isFetchingHint = false;
 
     if (hintsListEl) hintsListEl.innerHTML = "";
-    if (progressFillEl) progressFillEl.style.width = "0%";
-    if (progressTextEl) progressTextEl.textContent = "0 / 4 hints";
+    if (hintCounterEl) hintCounterEl.textContent = "0 hints revealed";
     if (nextHintBtn) {
       nextHintBtn.disabled = true;
       nextHintBtn.classList.remove("lch-btn--loading");
-      nextHintBtn.textContent = "Next Hint";
     }
     if (showCodeBtn) {
       showCodeBtn.disabled = true;

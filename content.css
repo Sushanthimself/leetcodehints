@@ -416,33 +416,13 @@
   to { transform: rotate(360deg); }
 }
 
-/* ---------- Hint Progress ---------- */
-.lch-progress {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.lch-progress__text {
+/* ---------- Hint Counter ---------- */
+.lch-hint-counter {
   font-size: 0.68rem;
   font-weight: 600;
   color: #52525b;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-}
-
-.lch-progress__bar {
-  flex: 1;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.lch-progress__fill {
-  height: 100%;
-  background: #a1a1aa;
-  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ---------- Hints List ---------- */
@@ -619,4 +599,50 @@
 .lch-secondary-actions {
   display: flex;
   justify-content: center;
+}
+
+/* ---------- Go Deeper Button ---------- */
+.lch-deeper-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  padding: 3px 8px;
+  font-family: inherit;
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: #52525b;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lch-deeper-btn:hover {
+  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lch-deeper-btn--loading {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ---------- Sub-Hint (Deeper) Card ---------- */
+.lch-hint--sub {
+  margin-left: 16px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.02);
+  border: none;
+  border-left: 2px solid rgba(255, 255, 255, 0.1);
+  animation: lch-hintSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lch-hint--sub .lch-hint__content {
+  font-size: 0.76rem;
+  color: #a1a1aa;
+  line-height: 1.5;
 }
